@@ -211,7 +211,9 @@
     }
   };
 
-  var isRTL = document.documentElement.dir === 'rtl';
+  var isRTL = function isRTL() {
+    return document.documentElement.dir === 'rtl';
+  };
 
   var defineJQueryPlugin = function defineJQueryPlugin(name, plugin) {
     onDOMContentLoaded(function () {
@@ -290,7 +292,7 @@
 
       _this = _BaseComponent.call(this, element) || this;
       _this._config = _this._getConfig(config);
-      _this._dialog = SelectorEngine__default['default'].findOne(SELECTOR_DIALOG, element);
+      _this._dialog = SelectorEngine__default['default'].findOne(SELECTOR_DIALOG, _this._element);
       _this._backdrop = null;
       _this._isShown = false;
       _this._isBodyOverflowing = false;
@@ -315,7 +317,7 @@
         return;
       }
 
-      if (this._element.classList.contains(CLASS_NAME_FADE)) {
+      if (this._isAnimated()) {
         this._isTransitioning = true;
       }
 
@@ -374,9 +376,9 @@
 
       this._isShown = false;
 
-      var transition = this._element.classList.contains(CLASS_NAME_FADE);
+      var isAnimated = this._isAnimated();
 
-      if (transition) {
+      if (isAnimated) {
         this._isTransitioning = true;
       }
 
@@ -391,7 +393,7 @@
       EventHandler__default['default'].off(this._element, EVENT_CLICK_DISMISS);
       EventHandler__default['default'].off(this._dialog, EVENT_MOUSEDOWN_DISMISS);
 
-      if (transition) {
+      if (isAnimated) {
         var transitionDuration = getTransitionDurationFromElement(this._element);
         EventHandler__default['default'].one(this._element, 'transitionend', function (event) {
           return _this3._hideModal(event);
@@ -440,7 +442,7 @@
     _proto._showElement = function _showElement(relatedTarget) {
       var _this4 = this;
 
-      var transition = this._element.classList.contains(CLASS_NAME_FADE);
+      var isAnimated = this._isAnimated();
 
       var modalBody = SelectorEngine__default['default'].findOne(SELECTOR_MODAL_BODY, this._dialog);
 
@@ -463,7 +465,7 @@
         modalBody.scrollTop = 0;
       }
 
-      if (transition) {
+      if (isAnimated) {
         reflow(this._element);
       }
 
@@ -484,7 +486,7 @@
         });
       };
 
-      if (transition) {
+      if (isAnimated) {
         var transitionDuration = getTransitionDurationFromElement(this._dialog);
         EventHandler__default['default'].one(this._dialog, 'transitionend', transitionComplete);
         emulateTransitionEnd(this._dialog, transitionDuration);
@@ -568,14 +570,14 @@
     _proto._showBackdrop = function _showBackdrop(callback) {
       var _this9 = this;
 
-      var animate = this._element.classList.contains(CLASS_NAME_FADE) ? CLASS_NAME_FADE : '';
+      var isAnimated = this._isAnimated();
 
       if (this._isShown && this._config.backdrop) {
         this._backdrop = document.createElement('div');
         this._backdrop.className = CLASS_NAME_BACKDROP;
 
-        if (animate) {
-          this._backdrop.classList.add(animate);
+        if (isAnimated) {
+          this._backdrop.classList.add(CLASS_NAME_FADE);
         }
 
         document.body.appendChild(this._backdrop);
@@ -596,13 +598,13 @@
           }
         });
 
-        if (animate) {
+        if (isAnimated) {
           reflow(this._backdrop);
         }
 
         this._backdrop.classList.add(CLASS_NAME_SHOW);
 
-        if (!animate) {
+        if (!isAnimated) {
           callback();
           return;
         }
@@ -619,7 +621,7 @@
           callback();
         };
 
-        if (this._element.classList.contains(CLASS_NAME_FADE)) {
+        if (isAnimated) {
           var _backdropTransitionDuration = getTransitionDurationFromElement(this._backdrop);
 
           EventHandler__default['default'].one(this._backdrop, 'transitionend', callbackRemove);
@@ -630,6 +632,10 @@
       } else {
         callback();
       }
+    };
+
+    _proto._isAnimated = function _isAnimated() {
+      return this._element.classList.contains(CLASS_NAME_FADE);
     };
 
     _proto._triggerBackdropTransition = function _triggerBackdropTransition() {
@@ -672,11 +678,11 @@
     _proto._adjustDialog = function _adjustDialog() {
       var isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight;
 
-      if (!this._isBodyOverflowing && isModalOverflowing && !isRTL || this._isBodyOverflowing && !isModalOverflowing && isRTL) {
+      if (!this._isBodyOverflowing && isModalOverflowing && !isRTL() || this._isBodyOverflowing && !isModalOverflowing && isRTL()) {
         this._element.style.paddingLeft = this._scrollbarWidth + "px";
       }
 
-      if (this._isBodyOverflowing && !isModalOverflowing && !isRTL || !this._isBodyOverflowing && isModalOverflowing && isRTL) {
+      if (this._isBodyOverflowing && !isModalOverflowing && !isRTL() || !this._isBodyOverflowing && isModalOverflowing && isRTL()) {
         this._element.style.paddingRight = this._scrollbarWidth + "px";
       }
     };
@@ -713,7 +719,13 @@
     };
 
     _proto._setElementAttributes = function _setElementAttributes(selector, styleProp, callback) {
+      var _this12 = this;
+
       SelectorEngine__default['default'].find(selector).forEach(function (element) {
+        if (element !== document.body && window.innerWidth > element.clientWidth + _this12._scrollbarWidth) {
+          return;
+        }
+
         var actualValue = element.style[styleProp];
         var calculatedValue = window.getComputedStyle(element)[styleProp];
         Manipulator__default['default'].setDataAttribute(element, styleProp, actualValue);
@@ -755,7 +767,7 @@
 
     Modal.jQueryInterface = function jQueryInterface(config, relatedTarget) {
       return this.each(function () {
-        var data = Data__default['default'].getData(this, DATA_KEY);
+        var data = Data__default['default'].get(this, DATA_KEY);
 
         var _config = _extends({}, Default, Manipulator__default['default'].getDataAttributes(this), typeof config === 'object' && config ? config : {});
 
@@ -795,7 +807,7 @@
 
 
   EventHandler__default['default'].on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
-    var _this12 = this;
+    var _this13 = this;
 
     var target = getElementFromSelector(this);
 
@@ -810,12 +822,12 @@
       }
 
       EventHandler__default['default'].one(target, EVENT_HIDDEN, function () {
-        if (isVisible(_this12)) {
-          _this12.focus();
+        if (isVisible(_this13)) {
+          _this13.focus();
         }
       });
     });
-    var data = Data__default['default'].getData(target, DATA_KEY);
+    var data = Data__default['default'].get(target, DATA_KEY);
 
     if (!data) {
       var config = _extends({}, Manipulator__default['default'].getDataAttributes(target), Manipulator__default['default'].getDataAttributes(this));

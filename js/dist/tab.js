@@ -131,6 +131,22 @@
     }, emulatedDuration);
   };
 
+  var isDisabled = function isDisabled(element) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) {
+      return true;
+    }
+
+    if (element.classList.contains('disabled')) {
+      return true;
+    }
+
+    if (typeof element.disabled !== 'undefined') {
+      return element.disabled;
+    }
+
+    return element.hasAttribute('disabled') && element.getAttribute('disabled') !== 'false';
+  };
+
   var reflow = function reflow(element) {
     return element.offsetHeight;
   };
@@ -153,8 +169,6 @@
       callback();
     }
   };
-
-  document.documentElement.dir === 'rtl';
 
   var defineJQueryPlugin = function defineJQueryPlugin(name, plugin) {
     onDOMContentLoaded(function () {
@@ -191,7 +205,6 @@
   var EVENT_CLICK_DATA_API = "click" + EVENT_KEY + DATA_API_KEY;
   var CLASS_NAME_DROPDOWN_MENU = 'dropdown-menu';
   var CLASS_NAME_ACTIVE = 'active';
-  var CLASS_NAME_DISABLED = 'disabled';
   var CLASS_NAME_FADE = 'fade';
   var CLASS_NAME_SHOW = 'show';
   var SELECTOR_DROPDOWN = '.dropdown';
@@ -220,7 +233,7 @@
     _proto.show = function show() {
       var _this = this;
 
-      if (this._element.parentNode && this._element.parentNode.nodeType === Node.ELEMENT_NODE && this._element.classList.contains(CLASS_NAME_ACTIVE) || this._element.classList.contains(CLASS_NAME_DISABLED)) {
+      if (this._element.parentNode && this._element.parentNode.nodeType === Node.ELEMENT_NODE && this._element.classList.contains(CLASS_NAME_ACTIVE) || isDisabled(this._element)) {
         return;
       }
 
@@ -332,7 +345,7 @@
 
     Tab.jQueryInterface = function jQueryInterface(config) {
       return this.each(function () {
-        var data = Data__default['default'].getData(this, DATA_KEY) || new Tab(this);
+        var data = Data__default['default'].get(this, DATA_KEY) || new Tab(this);
 
         if (typeof config === 'string') {
           if (typeof data[config] === 'undefined') {
@@ -363,7 +376,7 @@
 
   EventHandler__default['default'].on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
     event.preventDefault();
-    var data = Data__default['default'].getData(this, DATA_KEY) || new Tab(this);
+    var data = Data__default['default'].get(this, DATA_KEY) || new Tab(this);
     data.show();
   });
   /**
