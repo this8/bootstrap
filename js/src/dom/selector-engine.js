@@ -15,7 +15,7 @@ const NODE_TEXT = 3
 
 const SelectorEngine = {
   find(selector, element = document.documentElement) {
-    return [].concat(...Element.prototype.querySelectorAll.call(element, selector))
+    return Array.from(Element.prototype.querySelectorAll.call(element, selector))
   },
 
   findOne(selector, element = document.documentElement) {
@@ -23,7 +23,7 @@ const SelectorEngine = {
   },
 
   children(element, selector) {
-    return [].concat(...element.children)
+    return Array.from(element.children)
       .filter(child => child.matches(selector))
   },
 
