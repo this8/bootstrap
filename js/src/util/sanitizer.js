@@ -101,7 +101,7 @@ export function sanitizeHtml(unsafeHtml, allowList, sanitizeFn) {
   const domParser = new window.DOMParser()
   const createdDocument = domParser.parseFromString(unsafeHtml, 'text/html')
   const allowlistKeys = Object.keys(allowList)
-  const elements = Array.from(createdDocument.body.querySelectorAll('*'))
+  const elements = [].concat(...createdDocument.body.querySelectorAll('*'))
 
   for (let i = 0, len = elements.length; i < len; i++) {
     const el = elements[i]
@@ -113,7 +113,7 @@ export function sanitizeHtml(unsafeHtml, allowList, sanitizeFn) {
       continue
     }
 
-    const attributeList = Array.from(el.attributes)
+    const attributeList = [].concat(...el.attributes)
     const allowedAttributes = [].concat(allowList['*'] || [], allowList[elName] || [])
 
     attributeList.forEach(attr => {

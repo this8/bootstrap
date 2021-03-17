@@ -1,6 +1,6 @@
 import { Tooltip } from '../../../dist/js/bootstrap.esm.js'
 
 window.addEventListener('load', () => {
-  Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  [].concat(...document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     .map(tooltipNode => new Tooltip(tooltipNode))
 })
