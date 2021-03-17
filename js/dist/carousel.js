@@ -211,7 +211,9 @@
     }
   };
 
-  var isRTL = document.documentElement.dir === 'rtl';
+  var isRTL = function isRTL() {
+    return document.documentElement.dir === 'rtl';
+  };
 
   var defineJQueryPlugin = function defineJQueryPlugin(name, plugin) {
     onDOMContentLoaded(function () {
@@ -262,8 +264,8 @@
     wrap: 'boolean',
     touch: 'boolean'
   };
-  var DIRECTION_NEXT = 'next';
-  var DIRECTION_PREV = 'prev';
+  var ORDER_NEXT = 'next';
+  var ORDER_PREV = 'prev';
   var DIRECTION_LEFT = 'left';
   var DIRECTION_RIGHT = 'right';
   var EVENT_SLIDE = "slide" + EVENT_KEY;
@@ -335,7 +337,7 @@
     // Public
     _proto.next = function next() {
       if (!this._isSliding) {
-        this._slide(DIRECTION_NEXT);
+        this._slide(ORDER_NEXT);
       }
     };
 
@@ -349,7 +351,7 @@
 
     _proto.prev = function prev() {
       if (!this._isSliding) {
-        this._slide(DIRECTION_PREV);
+        this._slide(ORDER_PREV);
       }
     };
 
@@ -408,14 +410,12 @@
         return;
       }
 
-      var direction = index > activeIndex ? DIRECTION_NEXT : DIRECTION_PREV;
+      var order = index > activeIndex ? ORDER_NEXT : ORDER_PREV;
 
-      this._slide(direction, this._items[index]);
+      this._slide(order, this._items[index]);
     };
 
     _proto.dispose = function dispose() {
-      _BaseComponent.prototype.dispose.call(this);
-
       EventHandler__default['default'].off(this._element, EVENT_KEY);
       this._items = null;
       this._config = null;
@@ -424,6 +424,8 @@
       this._isSliding = null;
       this._activeElement = null;
       this._indicatorsElement = null;
+
+      _BaseComponent.prototype.dispose.call(this);
     } // Private
     ;
 
@@ -441,24 +443,13 @@
       }
 
       var direction = absDeltax / this.touchDeltaX;
-      this.touchDeltaX = 0; // swipe left
+      this.touchDeltaX = 0;
 
-      if (direction > 0) {
-        if (isRTL) {
-          this.next();
-        } else {
-          this.prev();
-        }
-      } // swipe right
-
-
-      if (direction < 0) {
-        if (isRTL) {
-          this.prev();
-        } else {
-          this.next();
-        }
+      if (!direction) {
+        return;
       }
+
+      this._slide(direction > 0 ? DIRECTION_RIGHT : DIRECTION_LEFT);
     };
 
     _proto._addEventListeners = function _addEventListeners() {
@@ -567,19 +558,11 @@
       if (event.key === ARROW_LEFT_KEY) {
         event.preventDefault();
 
-        if (isRTL) {
-          this.next();
-        } else {
-          this.prev();
-        }
+        this._slide(DIRECTION_LEFT);
       } else if (event.key === ARROW_RIGHT_KEY) {
         event.preventDefault();
 
-        if (isRTL) {
-          this.prev();
-        } else {
-          this.next();
-        }
+        this._slide(DIRECTION_RIGHT);
       }
     };
 
@@ -588,20 +571,20 @@
       return this._items.indexOf(element);
     };
 
-    _proto._getItemByDirection = function _getItemByDirection(direction, activeElement) {
-      var isNextDirection = direction === DIRECTION_NEXT;
-      var isPrevDirection = direction === DIRECTION_PREV;
+    _proto._getItemByOrder = function _getItemByOrder(order, activeElement) {
+      var isNext = order === ORDER_NEXT;
+      var isPrev = order === ORDER_PREV;
 
       var activeIndex = this._getItemIndex(activeElement);
 
       var lastItemIndex = this._items.length - 1;
-      var isGoingToWrap = isPrevDirection && activeIndex === 0 || isNextDirection && activeIndex === lastItemIndex;
+      var isGoingToWrap = isPrev && activeIndex === 0 || isNext && activeIndex === lastItemIndex;
 
       if (isGoingToWrap && !this._config.wrap) {
         return activeElement;
       }
 
-      var delta = direction === DIRECTION_PREV ? -1 : 1;
+      var delta = isPrev ? -1 : 1;
       var itemIndex = (activeIndex + delta) % this._items.length;
       return itemIndex === -1 ? this._items[this._items.length - 1] : this._items[itemIndex];
     };
@@ -653,21 +636,25 @@
       }
     };
 
-    _proto._slide = function _slide(direction, element) {
+    _proto._slide = function _slide(directionOrOrder, element) {
       var _this5 = this;
+
+      var order = this._directionToOrder(directionOrOrder);
 
       var activeElement = SelectorEngine__default['default'].findOne(SELECTOR_ACTIVE_ITEM, this._element);
 
       var activeElementIndex = this._getItemIndex(activeElement);
 
-      var nextElement = element || activeElement && this._getItemByDirection(direction, activeElement);
+      var nextElement = element || this._getItemByOrder(order, activeElement);
 
       var nextElementIndex = this._getItemIndex(nextElement);
 
       var isCycling = Boolean(this._interval);
-      var directionalClassName = direction === DIRECTION_NEXT ? CLASS_NAME_START : CLASS_NAME_END;
-      var orderClassName = direction === DIRECTION_NEXT ? CLASS_NAME_NEXT : CLASS_NAME_PREV;
-      var eventDirectionName = direction === DIRECTION_NEXT ? DIRECTION_LEFT : DIRECTION_RIGHT;
+      var isNext = order === ORDER_NEXT;
+      var directionalClassName = isNext ? CLASS_NAME_START : CLASS_NAME_END;
+      var orderClassName = isNext ? CLASS_NAME_NEXT : CLASS_NAME_PREV;
+
+      var eventDirectionName = this._orderToDirection(order);
 
       if (nextElement && nextElement.classList.contains(CLASS_NAME_ACTIVE)) {
         this._isSliding = false;
@@ -731,11 +718,35 @@
       if (isCycling) {
         this.cycle();
       }
+    };
+
+    _proto._directionToOrder = function _directionToOrder(direction) {
+      if (![DIRECTION_RIGHT, DIRECTION_LEFT].includes(direction)) {
+        return direction;
+      }
+
+      if (isRTL()) {
+        return direction === DIRECTION_RIGHT ? ORDER_PREV : ORDER_NEXT;
+      }
+
+      return direction === DIRECTION_RIGHT ? ORDER_NEXT : ORDER_PREV;
+    };
+
+    _proto._orderToDirection = function _orderToDirection(order) {
+      if (![ORDER_NEXT, ORDER_PREV].includes(order)) {
+        return order;
+      }
+
+      if (isRTL()) {
+        return order === ORDER_NEXT ? DIRECTION_LEFT : DIRECTION_RIGHT;
+      }
+
+      return order === ORDER_NEXT ? DIRECTION_RIGHT : DIRECTION_LEFT;
     } // Static
     ;
 
     Carousel.carouselInterface = function carouselInterface(element, config) {
-      var data = Data__default['default'].getData(element, DATA_KEY);
+      var data = Data__default['default'].get(element, DATA_KEY);
 
       var _config = _extends({}, Default, Manipulator__default['default'].getDataAttributes(element));
 
@@ -787,7 +798,7 @@
       Carousel.carouselInterface(target, config);
 
       if (slideIndex) {
-        Data__default['default'].getData(target, DATA_KEY).to(slideIndex);
+        Data__default['default'].get(target, DATA_KEY).to(slideIndex);
       }
 
       event.preventDefault();
@@ -819,7 +830,7 @@
     var carousels = SelectorEngine__default['default'].find(SELECTOR_DATA_RIDE);
 
     for (var i = 0, len = carousels.length; i < len; i++) {
-      Carousel.carouselInterface(carousels[i], Data__default['default'].getData(carousels[i], DATA_KEY));
+      Carousel.carouselInterface(carousels[i], Data__default['default'].get(carousels[i], DATA_KEY));
     }
   });
   /**
