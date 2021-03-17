@@ -2180,10 +2180,6 @@ progress {
 .form-control::-webkit-date-and-time-value {
   height: 1.5em;
 }
-.form-control::-webkit-input-placeholder {
-  color: #6c757d;
-  opacity: 1;
-}
 .form-control::-moz-placeholder {
   color: #6c757d;
   opacity: 1;
@@ -2594,9 +2590,6 @@ textarea.form-control-lg {
   .form-floating > label {
     transition: none;
   }
-}
-.form-floating > .form-control::-webkit-input-placeholder {
-  color: transparent;
 }
 .form-floating > .form-control::-moz-placeholder {
   color: transparent;
