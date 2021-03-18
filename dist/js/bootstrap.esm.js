@@ -257,7 +257,7 @@ var Data = {
 
     if (!instanceMap.has(key) && instanceMap.size !== 0) {
       // eslint-disable-next-line no-console
-      console.error(`Bootstrap doesn't allow more than one instance per element. Bound instance: ${Array.from(instanceMap.keys())[0]}.`);
+      console.error(`Bootstrap doesn't allow more than one instance per element. Bound instance: ${[...instanceMap.keys()][0]}.`);
       return;
     }
 
@@ -892,7 +892,7 @@ const Manipulator = {
 const NODE_TEXT = 3;
 const SelectorEngine = {
   find(selector, element = document.documentElement) {
-    return [].concat(...Element.prototype.querySelectorAll.call(element, selector));
+    return [...Element.prototype.querySelectorAll.call(element, selector)];
   },
 
   findOne(selector, element = document.documentElement) {
@@ -900,7 +900,7 @@ const SelectorEngine = {
   },
 
   children(element, selector) {
-    return [].concat(...element.children).filter(child => child.matches(selector));
+    return [...element.children].filter(child => child.matches(selector));
   },
 
   parents(element, selector) {
@@ -2060,7 +2060,7 @@ class Dropdown extends BaseComponent {
 
 
     if ('ontouchstart' in document.documentElement && !parent.closest(SELECTOR_NAVBAR_NAV)) {
-      [].concat(...document.body.children).forEach(elem => EventHandler.on(elem, 'mouseover', null, noop()));
+      [...document.body.children].forEach(elem => EventHandler.on(elem, 'mouseover', null, noop()));
     }
 
     this._element.focus();
@@ -2283,7 +2283,7 @@ class Dropdown extends BaseComponent {
 
 
       if ('ontouchstart' in document.documentElement) {
-        [].concat(...document.body.children).forEach(elem => EventHandler.off(elem, 'mouseover', null, noop()));
+        [...document.body.children].forEach(elem => EventHandler.off(elem, 'mouseover', null, noop()));
       }
 
       toggles[i].setAttribute('aria-expanded', 'false');
@@ -3371,7 +3371,7 @@ function sanitizeHtml(unsafeHtml, allowList, sanitizeFn) {
   const domParser = new window.DOMParser();
   const createdDocument = domParser.parseFromString(unsafeHtml, 'text/html');
   const allowlistKeys = Object.keys(allowList);
-  const elements = [].concat(...createdDocument.body.querySelectorAll('*'));
+  const elements = [...createdDocument.body.querySelectorAll('*')];
 
   for (let i = 0, len = elements.length; i < len; i++) {
     const el = elements[i];
@@ -3382,8 +3382,8 @@ function sanitizeHtml(unsafeHtml, allowList, sanitizeFn) {
       continue;
     }
 
-    const attributeList = [].concat(...el.attributes);
-    const allowedAttributes = [].concat(allowList['*'] || [], allowList[elName] || []);
+    const attributeList = [...el.attributes];
+    const allowedAttributes = [...(allowList['*'] || []), ...(allowList[elName] || [])];
     attributeList.forEach(attr => {
       if (!allowedAttribute(attr, allowedAttributes)) {
         el.removeAttribute(attr.nodeName);
@@ -3655,7 +3655,7 @@ class Tooltip extends BaseComponent {
 
 
     if ('ontouchstart' in document.documentElement) {
-      [].concat(...document.body.children).forEach(element => {
+      [...document.body.children].forEach(element => {
         EventHandler.on(element, 'mouseover', noop());
       });
     }
@@ -3718,7 +3718,7 @@ class Tooltip extends BaseComponent {
     // empty mouseover listeners we added for iOS support
 
     if ('ontouchstart' in document.documentElement) {
-      [].concat(...document.body.children).forEach(element => EventHandler.off(element, 'mouseover', noop));
+      [...document.body.children].forEach(element => EventHandler.off(element, 'mouseover', noop));
     }
 
     this._activeTrigger[TRIGGER_CLICK] = false;

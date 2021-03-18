@@ -314,7 +314,7 @@
 
 
       if ('ontouchstart' in document.documentElement && !parent.closest(SELECTOR_NAVBAR_NAV)) {
-        [].concat(...document.body.children).forEach(elem => EventHandler__default['default'].on(elem, 'mouseover', null, noop()));
+        [...document.body.children].forEach(elem => EventHandler__default['default'].on(elem, 'mouseover', null, noop()));
       }
 
       this._element.focus();
@@ -537,7 +537,7 @@
 
 
         if ('ontouchstart' in document.documentElement) {
-          [].concat(...document.body.children).forEach(elem => EventHandler__default['default'].off(elem, 'mouseover', null, noop()));
+          [...document.body.children].forEach(elem => EventHandler__default['default'].off(elem, 'mouseover', null, noop()));
         }
 
         toggles[i].setAttribute('aria-expanded', 'false');
