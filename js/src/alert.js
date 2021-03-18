@@ -7,11 +7,9 @@
 
 import {
   defineJQueryPlugin,
-  emulateTransitionEnd,
   getElementFromSelector,
   getTransitionDurationFromElement
 } from './util/index'
-import Data from './dom/data'
 import EventHandler from './dom/event-handler'
 import BaseComponent from './base-component'
 
@@ -51,73 +49,48 @@ class Alert extends BaseComponent {
 
   // Public
 
-  close(element) {
-    const rootElement = element ? this._getRootElement(element) : this._element
-    const customEvent = this._triggerCloseEvent(rootElement)
+  close() {
+    const closeEvent = EventHandler.trigger(this._element, EVENT_CLOSE)
 
-    if (customEvent === null || customEvent.defaultPrevented) {
+    if (closeEvent.defaultPrevented) {
       return
     }
 
-    this._removeElement(rootElement)
+    this._removeElement()
   }
 
   // Private
+  _removeElement() {
+    this._element.classList.remove(CLASS_NAME_SHOW)
 
-  _getRootElement(element) {
-    return getElementFromSelector(element) || element.closest(`.${CLASS_NAME_ALERT}`)
-  }
-
-  _triggerCloseEvent(element) {
-    return EventHandler.trigger(element, EVENT_CLOSE)
-  }
-
-  _removeElement(element) {
-    element.classList.remove(CLASS_NAME_SHOW)
-
-    if (!element.classList.contains(CLASS_NAME_FADE)) {
-      this._destroyElement(element)
+    if (!this._element.classList.contains(CLASS_NAME_FADE)) {
+      this._destroyElement(this._element)
       return
     }
 
-    const transitionDuration = getTransitionDurationFromElement(element)
-
-    EventHandler.one(element, 'transitionend', () => this._destroyElement(element))
-    emulateTransitionEnd(element, transitionDuration)
+    const transitionDuration = getTransitionDurationFromElement(this._element)
+    setTimeout(() => this._destroyElement(this._element), transitionDuration)
   }
 
-  _destroyElement(element) {
-    if (element.parentNode) {
-      element.parentNode.removeChild(element)
+  _destroyElement() {
+    if (this._element.parentNode) {
+      this._element.parentNode.removeChild(this._element)
     }
 
-    EventHandler.trigger(element, EVENT_CLOSED)
+    EventHandler.trigger(this._element, EVENT_CLOSED)
+    super.dispose()
   }
 
   // Static
 
   static jQueryInterface(config) {
     return this.each(function () {
-      let data = Data.get(this, DATA_KEY)
-
-      if (!data) {
-        data = new Alert(this)
-      }
+      const data = Alert.getInstance(this, DATA_KEY) || new Alert(this)
 
       if (config === 'close') {
         data[config](this)
       }
     })
-  }
-
-  static handleDismiss(alertInstance) {
-    return function (event) {
-      if (event) {
-        event.preventDefault()
-      }
-
-      alertInstance.close(this)
-    }
   }
 }
 
@@ -127,7 +100,11 @@ class Alert extends BaseComponent {
  * ------------------------------------------------------------------------
  */
 
-EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DISMISS, Alert.handleDismiss(new Alert()))
+EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DISMISS, function () {
+  const target = getElementFromSelector(this) || this.closest(`.${CLASS_NAME_ALERT}`)
+  const alert = Alert.getInstance(target) || new Alert(target)
+  alert.close()
+})
 
 /**
  * ------------------------------------------------------------------------
