@@ -223,8 +223,7 @@
       this._triggerArray = SelectorEngine__default['default'].find(`${SELECTOR_DATA_TOGGLE}[href="#${this._element.id}"],` + `${SELECTOR_DATA_TOGGLE}[data-bs-target="#${this._element.id}"]`);
       const toggleList = SelectorEngine__default['default'].find(SELECTOR_DATA_TOGGLE);
 
-      for (let i = 0, len = toggleList.length; i < len; i++) {
-        const elem = toggleList[i];
+      for (const elem of toggleList) {
         const selector = getSelectorFromElement(elem);
         const filterElement = SelectorEngine__default['default'].find(selector).filter(foundElem => foundElem === this._element);
 

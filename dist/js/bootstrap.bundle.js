@@ -371,8 +371,8 @@
   function findHandler(events, handler, delegationSelector = null) {
     const uidEventList = Object.keys(events);
 
-    for (let i = 0, len = uidEventList.length; i < len; i++) {
-      const event = events[uidEventList[i]];
+    for (const element of uidEventList) {
+      const event = events[element];
 
       if (event.originalHandler === handler && event.delegationSelector === delegationSelector) {
         return event;
@@ -677,7 +677,7 @@
 
     _destroyElement(element) {
       if (element.parentNode) {
-        element.parentNode.removeChild(element);
+        element.remove();
       }
 
       EventHandler.trigger(element, EVENT_CLOSED);
@@ -1306,10 +1306,10 @@
         activeIndicator.removeAttribute('aria-current');
         const indicators = SelectorEngine.find(SELECTOR_INDICATOR, this._indicatorsElement);
 
-        for (let i = 0; i < indicators.length; i++) {
-          if (Number.parseInt(indicators[i].getAttribute('data-bs-slide-to'), 10) === this._getItemIndex(element)) {
-            indicators[i].classList.add(CLASS_NAME_ACTIVE$2);
-            indicators[i].setAttribute('aria-current', 'true');
+        for (const indicator of indicators) {
+          if (Number.parseInt(indicator.getAttribute('data-bs-slide-to'), 10) === this._getItemIndex(element)) {
+            indicator.classList.add(CLASS_NAME_ACTIVE$2);
+            indicator.setAttribute('aria-current', 'true');
             break;
           }
         }
@@ -1515,8 +1515,8 @@
   EventHandler.on(window, EVENT_LOAD_DATA_API$1, () => {
     const carousels = SelectorEngine.find(SELECTOR_DATA_RIDE);
 
-    for (let i = 0, len = carousels.length; i < len; i++) {
-      Carousel.carouselInterface(carousels[i], Data.get(carousels[i], DATA_KEY$9));
+    for (const carousel of carousels) {
+      Carousel.carouselInterface(carousel, Data.get(carousel, DATA_KEY$9));
     }
   });
   /**
@@ -1579,8 +1579,7 @@
       this._triggerArray = SelectorEngine.find(`${SELECTOR_DATA_TOGGLE$4}[href="#${this._element.id}"],` + `${SELECTOR_DATA_TOGGLE$4}[data-bs-target="#${this._element.id}"]`);
       const toggleList = SelectorEngine.find(SELECTOR_DATA_TOGGLE$4);
 
-      for (let i = 0, len = toggleList.length; i < len; i++) {
-        const elem = toggleList[i];
+      for (const elem of toggleList) {
         const selector = getSelectorFromElement(elem);
         const filterElement = SelectorEngine.find(selector).filter(foundElem => foundElem === this._element);
 
@@ -3996,10 +3995,10 @@
 
       const toggles = SelectorEngine.find(SELECTOR_DATA_TOGGLE$3);
 
-      for (let i = 0, len = toggles.length; i < len; i++) {
-        const context = Data.get(toggles[i], DATA_KEY$7);
+      for (const toggle of toggles) {
+        const context = Data.get(toggle, DATA_KEY$7);
         const relatedTarget = {
-          relatedTarget: toggles[i]
+          relatedTarget: toggle
         };
 
         if (event && event.type === 'click') {
@@ -4012,7 +4011,7 @@
 
         const dropdownMenu = context._menu;
 
-        if (!toggles[i].classList.contains(CLASS_NAME_SHOW$6)) {
+        if (!toggle.classList.contains(CLASS_NAME_SHOW$6)) {
           continue;
         }
 
@@ -4020,7 +4019,7 @@
           continue;
         }
 
-        const hideEvent = EventHandler.trigger(toggles[i], EVENT_HIDE$4, relatedTarget);
+        const hideEvent = EventHandler.trigger(toggle, EVENT_HIDE$4, relatedTarget);
 
         if (hideEvent.defaultPrevented) {
           continue;
@@ -4032,16 +4031,16 @@
           [...document.body.children].forEach(elem => EventHandler.off(elem, 'mouseover', null, noop()));
         }
 
-        toggles[i].setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-expanded', 'false');
 
         if (context._popper) {
           context._popper.destroy();
         }
 
         dropdownMenu.classList.remove(CLASS_NAME_SHOW$6);
-        toggles[i].classList.remove(CLASS_NAME_SHOW$6);
+        toggle.classList.remove(CLASS_NAME_SHOW$6);
         Manipulator.removeDataAttribute(dropdownMenu, 'popper');
-        EventHandler.trigger(toggles[i], EVENT_HIDDEN$4, relatedTarget);
+        EventHandler.trigger(toggle, EVENT_HIDDEN$4, relatedTarget);
       }
     }
 
@@ -4346,7 +4345,7 @@
 
       if (!this._element.parentNode || this._element.parentNode.nodeType !== Node.ELEMENT_NODE) {
         // Don't move modal's DOM position
-        document.body.appendChild(this._element);
+        document.body.append(this._element);
       }
 
       this._element.style.display = 'block';
@@ -4449,7 +4448,7 @@
     }
 
     _removeBackdrop() {
-      this._backdrop.parentNode.removeChild(this._backdrop);
+      this._backdrop.remove();
 
       this._backdrop = null;
     }
@@ -4465,7 +4464,7 @@
           this._backdrop.classList.add(CLASS_NAME_FADE$4);
         }
 
-        document.body.appendChild(this._backdrop);
+        document.body.append(this._backdrop);
         EventHandler.on(this._element, EVENT_CLICK_DISMISS$2, event => {
           if (this._ignoreBackdropClick) {
             this._ignoreBackdropClick = false;
@@ -4630,9 +4629,9 @@
       // thx d.walsh
       const scrollDiv = document.createElement('div');
       scrollDiv.className = CLASS_NAME_SCROLLBAR_MEASURER;
-      document.body.appendChild(scrollDiv);
+      document.body.append(scrollDiv);
       const scrollbarWidth = scrollDiv.getBoundingClientRect().width - scrollDiv.clientWidth;
-      document.body.removeChild(scrollDiv);
+      scrollDiv.remove();
       return scrollbarWidth;
     } // Static
 
@@ -5063,8 +5062,8 @@
 
     const regExp = allowedAttributeList.filter(attrRegex => attrRegex instanceof RegExp); // Check if a regular expression validates the attribute.
 
-    for (let i = 0, len = regExp.length; i < len; i++) {
-      if (regExp[i].test(attrName)) {
+    for (const element of regExp) {
+      if (element.test(attrName)) {
         return true;
       }
     }
@@ -5119,12 +5118,11 @@
     const allowlistKeys = Object.keys(allowList);
     const elements = [...createdDocument.body.querySelectorAll('*')];
 
-    for (let i = 0, len = elements.length; i < len; i++) {
-      const el = elements[i];
+    for (const el of elements) {
       const elName = el.nodeName.toLowerCase();
 
       if (!allowlistKeys.includes(elName)) {
-        el.parentNode.removeChild(el);
+        el.remove();
         continue;
       }
 
@@ -5321,7 +5319,7 @@
       EventHandler.off(this._element.closest(`.${CLASS_NAME_MODAL}`), 'hide.bs.modal', this._hideModalHandler);
 
       if (this.tip && this.tip.parentNode) {
-        this.tip.parentNode.removeChild(this.tip);
+        this.tip.remove();
       }
 
       this._isEnabled = null;
@@ -5379,7 +5377,7 @@
       Data.set(tip, this.constructor.DATA_KEY, this);
 
       if (!this._element.ownerDocument.documentElement.contains(this.tip)) {
-        container.appendChild(tip);
+        container.append(tip);
         EventHandler.trigger(this._element, this.constructor.Event.INSERTED);
       }
 
@@ -5438,7 +5436,7 @@
         }
 
         if (this._hoverState !== HOVER_STATE_SHOW && tip.parentNode) {
-          tip.parentNode.removeChild(tip);
+          tip.remove();
         }
 
         this._cleanTipClass();
@@ -5524,7 +5522,7 @@
         if (this.config.html) {
           if (content.parentNode !== element) {
             element.innerHTML = '';
-            element.appendChild(content);
+            element.append(content);
           }
         } else {
           element.textContent = content.textContent;
@@ -5693,7 +5691,7 @@
       const originalTitleType = typeof this._element.getAttribute('data-bs-original-title');
 
       if (title || originalTitleType !== 'string') {
-        this._element.setAttribute('data-bs-original-title', title || '');
+        this._element.dataset.bsOriginalTitle = title || '';
 
         if (title && !this._element.getAttribute('aria-label') && !this._element.textContent) {
           this._element.setAttribute('aria-label', title);

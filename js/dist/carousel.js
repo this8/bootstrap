@@ -533,10 +533,10 @@
         activeIndicator.removeAttribute('aria-current');
         const indicators = SelectorEngine__default['default'].find(SELECTOR_INDICATOR, this._indicatorsElement);
 
-        for (let i = 0; i < indicators.length; i++) {
-          if (Number.parseInt(indicators[i].getAttribute('data-bs-slide-to'), 10) === this._getItemIndex(element)) {
-            indicators[i].classList.add(CLASS_NAME_ACTIVE);
-            indicators[i].setAttribute('aria-current', 'true');
+        for (const indicator of indicators) {
+          if (Number.parseInt(indicator.getAttribute('data-bs-slide-to'), 10) === this._getItemIndex(element)) {
+            indicator.classList.add(CLASS_NAME_ACTIVE);
+            indicator.setAttribute('aria-current', 'true');
             break;
           }
         }
@@ -742,8 +742,8 @@
   EventHandler__default['default'].on(window, EVENT_LOAD_DATA_API, () => {
     const carousels = SelectorEngine__default['default'].find(SELECTOR_DATA_RIDE);
 
-    for (let i = 0, len = carousels.length; i < len; i++) {
-      Carousel.carouselInterface(carousels[i], Data__default['default'].get(carousels[i], DATA_KEY));
+    for (const carousel of carousels) {
+      Carousel.carouselInterface(carousel, Data__default['default'].get(carousel, DATA_KEY));
     }
   });
   /**

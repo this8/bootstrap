@@ -504,10 +504,10 @@
 
       const toggles = SelectorEngine__default['default'].find(SELECTOR_DATA_TOGGLE);
 
-      for (let i = 0, len = toggles.length; i < len; i++) {
-        const context = Data__default['default'].get(toggles[i], DATA_KEY);
+      for (const toggle of toggles) {
+        const context = Data__default['default'].get(toggle, DATA_KEY);
         const relatedTarget = {
-          relatedTarget: toggles[i]
+          relatedTarget: toggle
         };
 
         if (event && event.type === 'click') {
@@ -520,7 +520,7 @@
 
         const dropdownMenu = context._menu;
 
-        if (!toggles[i].classList.contains(CLASS_NAME_SHOW)) {
+        if (!toggle.classList.contains(CLASS_NAME_SHOW)) {
           continue;
         }
 
@@ -528,7 +528,7 @@
           continue;
         }
 
-        const hideEvent = EventHandler__default['default'].trigger(toggles[i], EVENT_HIDE, relatedTarget);
+        const hideEvent = EventHandler__default['default'].trigger(toggle, EVENT_HIDE, relatedTarget);
 
         if (hideEvent.defaultPrevented) {
           continue;
@@ -540,16 +540,16 @@
           [...document.body.children].forEach(elem => EventHandler__default['default'].off(elem, 'mouseover', null, noop()));
         }
 
-        toggles[i].setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-expanded', 'false');
 
         if (context._popper) {
           context._popper.destroy();
         }
 
         dropdownMenu.classList.remove(CLASS_NAME_SHOW);
-        toggles[i].classList.remove(CLASS_NAME_SHOW);
+        toggle.classList.remove(CLASS_NAME_SHOW);
         Manipulator__default['default'].removeDataAttribute(dropdownMenu, 'popper');
-        EventHandler__default['default'].trigger(toggles[i], EVENT_HIDDEN, relatedTarget);
+        EventHandler__default['default'].trigger(toggle, EVENT_HIDDEN, relatedTarget);
       }
     }
 
