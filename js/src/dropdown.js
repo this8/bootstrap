@@ -383,10 +383,10 @@ class Dropdown extends BaseComponent {
 
     const toggles = SelectorEngine.find(SELECTOR_DATA_TOGGLE)
 
-    for (let i = 0, len = toggles.length; i < len; i++) {
-      const context = Data.get(toggles[i], DATA_KEY)
+    for (const toggle of toggles) {
+      const context = Data.get(toggle, DATA_KEY)
       const relatedTarget = {
-        relatedTarget: toggles[i]
+        relatedTarget: toggle
       }
 
       if (event && event.type === 'click') {
@@ -398,7 +398,7 @@ class Dropdown extends BaseComponent {
       }
 
       const dropdownMenu = context._menu
-      if (!toggles[i].classList.contains(CLASS_NAME_SHOW)) {
+      if (!toggle.classList.contains(CLASS_NAME_SHOW)) {
         continue
       }
 
@@ -409,7 +409,7 @@ class Dropdown extends BaseComponent {
         continue
       }
 
-      const hideEvent = EventHandler.trigger(toggles[i], EVENT_HIDE, relatedTarget)
+      const hideEvent = EventHandler.trigger(toggle, EVENT_HIDE, relatedTarget)
       if (hideEvent.defaultPrevented) {
         continue
       }
@@ -421,16 +421,16 @@ class Dropdown extends BaseComponent {
           .forEach(elem => EventHandler.off(elem, 'mouseover', null, noop()))
       }
 
-      toggles[i].setAttribute('aria-expanded', 'false')
+      toggle.setAttribute('aria-expanded', 'false')
 
       if (context._popper) {
         context._popper.destroy()
       }
 
       dropdownMenu.classList.remove(CLASS_NAME_SHOW)
-      toggles[i].classList.remove(CLASS_NAME_SHOW)
+      toggle.classList.remove(CLASS_NAME_SHOW)
       Manipulator.removeDataAttribute(dropdownMenu, 'popper')
-      EventHandler.trigger(toggles[i], EVENT_HIDDEN, relatedTarget)
+      EventHandler.trigger(toggle, EVENT_HIDDEN, relatedTarget)
     }
   }
 
