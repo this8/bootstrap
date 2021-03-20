@@ -17,54 +17,53 @@
   var EventHandler__default = /*#__PURE__*/_interopDefaultLegacy(EventHandler);
   var BaseComponent__default = /*#__PURE__*/_interopDefaultLegacy(BaseComponent);
 
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
     }
+
+    return obj;
   }
 
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    return Constructor;
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
   }
 
-  function _extends() {
-    _extends = Object.assign || function (target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
 
-        for (var key in source) {
-          if (Object.prototype.hasOwnProperty.call(source, key)) {
-            target[key] = source[key];
-          }
-        }
+      if (i % 2) {
+        ownKeys(Object(source), true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(Object(source)).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
       }
+    }
 
-      return target;
-    };
-
-    return _extends.apply(this, arguments);
-  }
-
-  function _inheritsLoose(subClass, superClass) {
-    subClass.prototype = Object.create(superClass.prototype);
-    subClass.prototype.constructor = subClass;
-
-    _setPrototypeOf(subClass, superClass);
-  }
-
-  function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-      o.__proto__ = p;
-      return o;
-    };
-
-    return _setPrototypeOf(o, p);
+    return target;
   }
 
   /**
@@ -73,21 +72,21 @@
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
-  var MILLISECONDS_MULTIPLIER = 1000;
+  const MILLISECONDS_MULTIPLIER = 1000;
 
-  var toType = function toType(obj) {
+  const toType = obj => {
     if (obj === null || obj === undefined) {
-      return "" + obj;
+      return `${obj}`;
     }
 
     return {}.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
   };
 
-  var getSelector = function getSelector(element) {
-    var selector = element.getAttribute('data-bs-target');
+  const getSelector = element => {
+    let selector = element.getAttribute('data-bs-target');
 
     if (!selector || selector === '#') {
-      var hrefAttr = element.getAttribute('href'); // The only valid content that could double as a selector are IDs or classes,
+      let hrefAttr = element.getAttribute('href'); // The only valid content that could double as a selector are IDs or classes,
       // so everything starting with `#` or `.`. If a "real" URL is used as the selector,
       // `document.querySelector` will rightfully complain it is invalid.
       // See https://github.com/twbs/bootstrap/issues/32273
@@ -107,8 +106,8 @@
     return selector;
   };
 
-  var getSelectorFromElement = function getSelectorFromElement(element) {
-    var selector = getSelector(element);
+  const getSelectorFromElement = element => {
+    const selector = getSelector(element);
 
     if (selector) {
       return document.querySelector(selector) ? selector : null;
@@ -117,23 +116,23 @@
     return null;
   };
 
-  var getElementFromSelector = function getElementFromSelector(element) {
-    var selector = getSelector(element);
+  const getElementFromSelector = element => {
+    const selector = getSelector(element);
     return selector ? document.querySelector(selector) : null;
   };
 
-  var getTransitionDurationFromElement = function getTransitionDurationFromElement(element) {
+  const getTransitionDurationFromElement = element => {
     if (!element) {
       return 0;
     } // Get transition-duration of the element
 
 
-    var _window$getComputedSt = window.getComputedStyle(element),
-        transitionDuration = _window$getComputedSt.transitionDuration,
-        transitionDelay = _window$getComputedSt.transitionDelay;
-
-    var floatTransitionDuration = Number.parseFloat(transitionDuration);
-    var floatTransitionDelay = Number.parseFloat(transitionDelay); // Return 0 if element or transition duration is not found
+    let {
+      transitionDuration,
+      transitionDelay
+    } = window.getComputedStyle(element);
+    const floatTransitionDuration = Number.parseFloat(transitionDuration);
+    const floatTransitionDelay = Number.parseFloat(transitionDelay); // Return 0 if element or transition duration is not found
 
     if (!floatTransitionDuration && !floatTransitionDelay) {
       return 0;
@@ -145,37 +144,35 @@
     return (Number.parseFloat(transitionDuration) + Number.parseFloat(transitionDelay)) * MILLISECONDS_MULTIPLIER;
   };
 
-  var isElement = function isElement(obj) {
-    return (obj[0] || obj).nodeType;
-  };
+  const isElement = obj => (obj[0] || obj).nodeType;
 
-  var typeCheckConfig = function typeCheckConfig(componentName, config, configTypes) {
-    Object.keys(configTypes).forEach(function (property) {
-      var expectedTypes = configTypes[property];
-      var value = config[property];
-      var valueType = value && isElement(value) ? 'element' : toType(value);
+  const typeCheckConfig = (componentName, config, configTypes) => {
+    Object.keys(configTypes).forEach(property => {
+      const expectedTypes = configTypes[property];
+      const value = config[property];
+      const valueType = value && isElement(value) ? 'element' : toType(value);
 
       if (!new RegExp(expectedTypes).test(valueType)) {
-        throw new TypeError(componentName.toUpperCase() + ": " + ("Option \"" + property + "\" provided type \"" + valueType + "\" ") + ("but expected type \"" + expectedTypes + "\"."));
+        throw new TypeError(`${componentName.toUpperCase()}: ` + `Option "${property}" provided type "${valueType}" ` + `but expected type "${expectedTypes}".`);
       }
     });
   };
 
-  var isVisible = function isVisible(element) {
+  const isVisible = element => {
     if (!element) {
       return false;
     }
 
     if (element.style && element.parentNode && element.parentNode.style) {
-      var elementStyle = getComputedStyle(element);
-      var parentNodeStyle = getComputedStyle(element.parentNode);
+      const elementStyle = getComputedStyle(element);
+      const parentNodeStyle = getComputedStyle(element.parentNode);
       return elementStyle.display !== 'none' && parentNodeStyle.display !== 'none' && elementStyle.visibility !== 'hidden';
     }
 
     return false;
   };
 
-  var isDisabled = function isDisabled(element) {
+  const isDisabled = element => {
     if (!element || element.nodeType !== Node.ELEMENT_NODE) {
       return true;
     }
@@ -191,9 +188,10 @@
     return element.hasAttribute('disabled') && element.getAttribute('disabled') !== 'false';
   };
 
-  var getjQuery = function getjQuery() {
-    var _window = window,
-        jQuery = _window.jQuery;
+  const getjQuery = () => {
+    const {
+      jQuery
+    } = window;
 
     if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
@@ -202,7 +200,7 @@
     return null;
   };
 
-  var onDOMContentLoaded = function onDOMContentLoaded(callback) {
+  const onDOMContentLoaded = callback => {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', callback);
     } else {
@@ -210,17 +208,17 @@
     }
   };
 
-  var defineJQueryPlugin = function defineJQueryPlugin(name, plugin) {
-    onDOMContentLoaded(function () {
-      var $ = getjQuery();
+  const defineJQueryPlugin = (name, plugin) => {
+    onDOMContentLoaded(() => {
+      const $ = getjQuery();
       /* istanbul ignore if */
 
       if ($) {
-        var JQUERY_NO_CONFLICT = $.fn[name];
+        const JQUERY_NO_CONFLICT = $.fn[name];
         $.fn[name] = plugin.jQueryInterface;
         $.fn[name].Constructor = plugin;
 
-        $.fn[name].noConflict = function () {
+        $.fn[name].noConflict = () => {
           $.fn[name] = JQUERY_NO_CONFLICT;
           return plugin.jQueryInterface;
         };
@@ -234,50 +232,40 @@
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
-  var SELECTOR_FIXED_CONTENT = '.fixed-top, .fixed-bottom, .is-fixed';
-  var SELECTOR_STICKY_CONTENT = '.sticky-top';
+  const SELECTOR_FIXED_CONTENT = '.fixed-top, .fixed-bottom, .is-fixed';
+  const SELECTOR_STICKY_CONTENT = '.sticky-top';
 
-  var getWidth = function getWidth() {
+  const getWidth = () => {
     // https://developer.mozilla.org/en-US/docs/Web/API/Window/innerWidth#usage_notes
-    var documentWidth = document.documentElement.clientWidth;
+    const documentWidth = document.documentElement.clientWidth;
     return Math.abs(window.innerWidth - documentWidth);
   };
 
-  var hide = function hide(width) {
-    if (width === void 0) {
-      width = getWidth();
-    }
-
+  const hide = (width = getWidth()) => {
     document.body.style.overflow = 'hidden';
 
-    _setElementAttributes(SELECTOR_FIXED_CONTENT, 'paddingRight', function (calculatedValue) {
-      return calculatedValue + width;
-    });
+    _setElementAttributes(SELECTOR_FIXED_CONTENT, 'paddingRight', calculatedValue => calculatedValue + width);
 
-    _setElementAttributes(SELECTOR_STICKY_CONTENT, 'marginRight', function (calculatedValue) {
-      return calculatedValue - width;
-    });
+    _setElementAttributes(SELECTOR_STICKY_CONTENT, 'marginRight', calculatedValue => calculatedValue - width);
 
-    _setElementAttributes('body', 'paddingRight', function (calculatedValue) {
-      return calculatedValue + width;
-    });
+    _setElementAttributes('body', 'paddingRight', calculatedValue => calculatedValue + width);
   };
 
-  var _setElementAttributes = function _setElementAttributes(selector, styleProp, callback) {
-    var scrollbarWidth = getWidth();
-    SelectorEngine__default['default'].find(selector).forEach(function (element) {
+  const _setElementAttributes = (selector, styleProp, callback) => {
+    const scrollbarWidth = getWidth();
+    SelectorEngine__default['default'].find(selector).forEach(element => {
       if (element !== document.body && window.innerWidth > element.clientWidth + scrollbarWidth) {
         return;
       }
 
-      var actualValue = element.style[styleProp];
-      var calculatedValue = window.getComputedStyle(element)[styleProp];
+      const actualValue = element.style[styleProp];
+      const calculatedValue = window.getComputedStyle(element)[styleProp];
       Manipulator__default['default'].setDataAttribute(element, styleProp, actualValue);
       element.style[styleProp] = callback(Number.parseFloat(calculatedValue)) + 'px';
     });
   };
 
-  var reset = function reset() {
+  const reset = () => {
     document.body.style.overflow = 'auto';
 
     _resetElementAttributes(SELECTOR_FIXED_CONTENT, 'paddingRight');
@@ -287,9 +275,9 @@
     _resetElementAttributes('body', 'paddingRight');
   };
 
-  var _resetElementAttributes = function _resetElementAttributes(selector, styleProp) {
-    SelectorEngine__default['default'].find(selector).forEach(function (element) {
-      var value = Manipulator__default['default'].getDataAttribute(element, styleProp);
+  const _resetElementAttributes = (selector, styleProp) => {
+    SelectorEngine__default['default'].find(selector).forEach(element => {
+      const value = Manipulator__default['default'].getDataAttribute(element, styleProp);
 
       if (typeof value === 'undefined' && element === document.body) {
         element.style.removeProperty(styleProp);
@@ -306,72 +294,70 @@
    * ------------------------------------------------------------------------
    */
 
-  var NAME = 'offcanvas';
-  var DATA_KEY = 'bs.offcanvas';
-  var EVENT_KEY = "." + DATA_KEY;
-  var DATA_API_KEY = '.data-api';
-  var ESCAPE_KEY = 'Escape';
-  var Default = {
+  const NAME = 'offcanvas';
+  const DATA_KEY = 'bs.offcanvas';
+  const EVENT_KEY = `.${DATA_KEY}`;
+  const DATA_API_KEY = '.data-api';
+  const ESCAPE_KEY = 'Escape';
+  const Default = {
     backdrop: true,
     keyboard: true,
     scroll: false
   };
-  var DefaultType = {
+  const DefaultType = {
     backdrop: 'boolean',
     keyboard: 'boolean',
     scroll: 'boolean'
   };
-  var CLASS_NAME_BACKDROP_BODY = 'offcanvas-backdrop';
-  var CLASS_NAME_SHOW = 'show';
-  var CLASS_NAME_TOGGLING = 'offcanvas-toggling';
-  var ACTIVE_SELECTOR = ".offcanvas.show, ." + CLASS_NAME_TOGGLING;
-  var EVENT_SHOW = "show" + EVENT_KEY;
-  var EVENT_SHOWN = "shown" + EVENT_KEY;
-  var EVENT_HIDE = "hide" + EVENT_KEY;
-  var EVENT_HIDDEN = "hidden" + EVENT_KEY;
-  var EVENT_FOCUSIN = "focusin" + EVENT_KEY;
-  var EVENT_CLICK_DATA_API = "click" + EVENT_KEY + DATA_API_KEY;
-  var EVENT_CLICK_DISMISS = "click.dismiss" + EVENT_KEY;
-  var SELECTOR_DATA_DISMISS = '[data-bs-dismiss="offcanvas"]';
-  var SELECTOR_DATA_TOGGLE = '[data-bs-toggle="offcanvas"]';
+  const CLASS_NAME_BACKDROP_BODY = 'offcanvas-backdrop';
+  const CLASS_NAME_SHOW = 'show';
+  const CLASS_NAME_TOGGLING = 'offcanvas-toggling';
+  const ACTIVE_SELECTOR = `.offcanvas.show, .${CLASS_NAME_TOGGLING}`;
+  const EVENT_SHOW = `show${EVENT_KEY}`;
+  const EVENT_SHOWN = `shown${EVENT_KEY}`;
+  const EVENT_HIDE = `hide${EVENT_KEY}`;
+  const EVENT_HIDDEN = `hidden${EVENT_KEY}`;
+  const EVENT_FOCUSIN = `focusin${EVENT_KEY}`;
+  const EVENT_CLICK_DATA_API = `click${EVENT_KEY}${DATA_API_KEY}`;
+  const EVENT_CLICK_DISMISS = `click.dismiss${EVENT_KEY}`;
+  const SELECTOR_DATA_DISMISS = '[data-bs-dismiss="offcanvas"]';
+  const SELECTOR_DATA_TOGGLE = '[data-bs-toggle="offcanvas"]';
   /**
    * ------------------------------------------------------------------------
    * Class Definition
    * ------------------------------------------------------------------------
    */
 
-  var Offcanvas = /*#__PURE__*/function (_BaseComponent) {
-    _inheritsLoose(Offcanvas, _BaseComponent);
+  class Offcanvas extends BaseComponent__default['default'] {
+    constructor(element, config) {
+      super(element);
+      this._config = this._getConfig(config);
+      this._isShown = element.classList.contains(CLASS_NAME_SHOW);
 
-    function Offcanvas(element, config) {
-      var _this;
-
-      _this = _BaseComponent.call(this, element) || this;
-      _this._config = _this._getConfig(config);
-      _this._isShown = element.classList.contains(CLASS_NAME_SHOW);
-
-      _this._addEventListeners();
-
-      return _this;
+      this._addEventListeners();
     } // Getters
 
 
-    var _proto = Offcanvas.prototype;
+    static get Default() {
+      return Default;
+    }
 
-    // Public
-    _proto.toggle = function toggle(relatedTarget) {
+    static get DATA_KEY() {
+      return DATA_KEY;
+    } // Public
+
+
+    toggle(relatedTarget) {
       return this._isShown ? this.hide() : this.show(relatedTarget);
-    };
+    }
 
-    _proto.show = function show(relatedTarget) {
-      var _this2 = this;
-
+    show(relatedTarget) {
       if (this._isShown) {
         return;
       }
 
-      var showEvent = EventHandler__default['default'].trigger(this._element, EVENT_SHOW, {
-        relatedTarget: relatedTarget
+      const showEvent = EventHandler__default['default'].trigger(this._element, EVENT_SHOW, {
+        relatedTarget
       });
 
       if (showEvent.defaultPrevented) {
@@ -399,27 +385,25 @@
 
       this._element.classList.add(CLASS_NAME_SHOW);
 
-      var completeCallBack = function completeCallBack() {
-        _this2._element.classList.remove(CLASS_NAME_TOGGLING);
+      const completeCallBack = () => {
+        this._element.classList.remove(CLASS_NAME_TOGGLING);
 
-        EventHandler__default['default'].trigger(_this2._element, EVENT_SHOWN, {
-          relatedTarget: relatedTarget
+        EventHandler__default['default'].trigger(this._element, EVENT_SHOWN, {
+          relatedTarget
         });
 
-        _this2._enforceFocusOnElement(_this2._element);
+        this._enforceFocusOnElement(this._element);
       };
 
       setTimeout(completeCallBack, getTransitionDurationFromElement(this._element));
-    };
+    }
 
-    _proto.hide = function hide() {
-      var _this3 = this;
-
+    hide() {
       if (!this._isShown) {
         return;
       }
 
-      var hideEvent = EventHandler__default['default'].trigger(this._element, EVENT_HIDE);
+      const hideEvent = EventHandler__default['default'].trigger(this._element, EVENT_HIDE);
 
       if (hideEvent.defaultPrevented) {
         return;
@@ -435,100 +419,83 @@
 
       this._element.classList.remove(CLASS_NAME_SHOW);
 
-      var completeCallback = function completeCallback() {
-        _this3._element.setAttribute('aria-hidden', true);
+      const completeCallback = () => {
+        this._element.setAttribute('aria-hidden', true);
 
-        _this3._element.removeAttribute('aria-modal');
+        this._element.removeAttribute('aria-modal');
 
-        _this3._element.removeAttribute('role');
+        this._element.removeAttribute('role');
 
-        _this3._element.style.visibility = 'hidden';
+        this._element.style.visibility = 'hidden';
 
-        if (_this3._config.backdrop) {
+        if (this._config.backdrop) {
           document.body.classList.remove(CLASS_NAME_BACKDROP_BODY);
         }
 
-        if (!_this3._config.scroll) {
+        if (!this._config.scroll) {
           reset();
         }
 
-        EventHandler__default['default'].trigger(_this3._element, EVENT_HIDDEN);
+        EventHandler__default['default'].trigger(this._element, EVENT_HIDDEN);
 
-        _this3._element.classList.remove(CLASS_NAME_TOGGLING);
+        this._element.classList.remove(CLASS_NAME_TOGGLING);
       };
 
       setTimeout(completeCallback, getTransitionDurationFromElement(this._element));
     } // Private
-    ;
 
-    _proto._getConfig = function _getConfig(config) {
-      config = _extends({}, Default, Manipulator__default['default'].getDataAttributes(this._element), typeof config === 'object' ? config : {});
+
+    _getConfig(config) {
+      config = _objectSpread2(_objectSpread2(_objectSpread2({}, Default), Manipulator__default['default'].getDataAttributes(this._element)), typeof config === 'object' ? config : {});
       typeCheckConfig(NAME, config, DefaultType);
       return config;
-    };
+    }
 
-    _proto._enforceFocusOnElement = function _enforceFocusOnElement(element) {
+    _enforceFocusOnElement(element) {
       EventHandler__default['default'].off(document, EVENT_FOCUSIN); // guard against infinite focus loop
 
-      EventHandler__default['default'].on(document, EVENT_FOCUSIN, function (event) {
+      EventHandler__default['default'].on(document, EVENT_FOCUSIN, event => {
         if (document !== event.target && element !== event.target && !element.contains(event.target)) {
           element.focus();
         }
       });
       element.focus();
-    };
+    }
 
-    _proto._addEventListeners = function _addEventListeners() {
-      var _this4 = this;
-
-      EventHandler__default['default'].on(this._element, EVENT_CLICK_DISMISS, SELECTOR_DATA_DISMISS, function () {
-        return _this4.hide();
-      });
-      EventHandler__default['default'].on(document, 'keydown', function (event) {
-        if (_this4._config.keyboard && event.key === ESCAPE_KEY) {
-          _this4.hide();
+    _addEventListeners() {
+      EventHandler__default['default'].on(this._element, EVENT_CLICK_DISMISS, SELECTOR_DATA_DISMISS, () => this.hide());
+      EventHandler__default['default'].on(document, 'keydown', event => {
+        if (this._config.keyboard && event.key === ESCAPE_KEY) {
+          this.hide();
         }
       });
-      EventHandler__default['default'].on(document, EVENT_CLICK_DATA_API, function (event) {
-        var target = SelectorEngine__default['default'].findOne(getSelectorFromElement(event.target));
+      EventHandler__default['default'].on(document, EVENT_CLICK_DATA_API, event => {
+        const target = SelectorEngine__default['default'].findOne(getSelectorFromElement(event.target));
 
-        if (!_this4._element.contains(event.target) && target !== _this4._element) {
-          _this4.hide();
+        if (!this._element.contains(event.target) && target !== this._element) {
+          this.hide();
         }
       });
     } // Static
-    ;
 
-    Offcanvas.jQueryInterface = function jQueryInterface(config) {
+
+    static jQueryInterface(config) {
       return this.each(function () {
-        var data = Data__default['default'].get(this, DATA_KEY) || new Offcanvas(this, typeof config === 'object' ? config : {});
+        const data = Data__default['default'].get(this, DATA_KEY) || new Offcanvas(this, typeof config === 'object' ? config : {});
 
         if (typeof config !== 'string') {
           return;
         }
 
         if (data[config] === undefined || config.startsWith('_') || config === 'constructor') {
-          throw new TypeError("No method named \"" + config + "\"");
+          throw new TypeError(`No method named "${config}"`);
         }
 
         data[config](this);
       });
-    };
+    }
 
-    _createClass(Offcanvas, null, [{
-      key: "Default",
-      get: function get() {
-        return Default;
-      }
-    }, {
-      key: "DATA_KEY",
-      get: function get() {
-        return DATA_KEY;
-      }
-    }]);
-
-    return Offcanvas;
-  }(BaseComponent__default['default']);
+  }
   /**
    * ------------------------------------------------------------------------
    * Data Api implementation
@@ -537,9 +504,7 @@
 
 
   EventHandler__default['default'].on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
-    var _this5 = this;
-
-    var target = getElementFromSelector(this);
+    const target = getElementFromSelector(this);
 
     if (['A', 'AREA'].includes(this.tagName)) {
       event.preventDefault();
@@ -549,20 +514,20 @@
       return;
     }
 
-    EventHandler__default['default'].one(target, EVENT_HIDDEN, function () {
+    EventHandler__default['default'].one(target, EVENT_HIDDEN, () => {
       // focus on trigger when it is closed
-      if (isVisible(_this5)) {
-        _this5.focus();
+      if (isVisible(this)) {
+        this.focus();
       }
     }); // avoid conflict when clicking a toggler of an offcanvas, while another is open
 
-    var allReadyOpen = SelectorEngine__default['default'].findOne(ACTIVE_SELECTOR);
+    const allReadyOpen = SelectorEngine__default['default'].findOne(ACTIVE_SELECTOR);
 
     if (allReadyOpen && allReadyOpen !== target) {
       return;
     }
 
-    var data = Data__default['default'].get(target, DATA_KEY) || new Offcanvas(target);
+    const data = Data__default['default'].get(target, DATA_KEY) || new Offcanvas(target);
     data.toggle(this);
   });
   /**
